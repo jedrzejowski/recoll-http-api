@@ -3,8 +3,7 @@ FROM ubuntu:22.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
-        file \
-        wget \
+        file wget curl \
         libxapian30 \
         libxslt1.1 \
         zlib1g \
@@ -47,12 +46,20 @@ RUN ./configure \
 RUN make
 RUN make install
 
-FROM base as rust-builder
+FROM rust:buster as rust-builder
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+WORKDIR /app
+
+COPY Cargo.* /app/
+RUN cargo fetch
+
+COPY . /app
+RUN cargo build --release
 
 FROM base
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 COPY --from=recoll-builder /usr/local /usr/local
+COPY --from=rust-builder /app/target/release/windexer-serve  /usr/local/bin/windexer-serve
+COPY --from=rust-builder /app/target/release/windexer-update /usr/local/bin/windexer-update
 
