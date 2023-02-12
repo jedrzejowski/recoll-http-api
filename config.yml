@@ -1,0 +1,5 @@
+indexes:
+  base:
+    recoll_config_dir: /output
+    recoll_url_prefix: file:///input/
+    url_prefix: protocol://mydrive/
