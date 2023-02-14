@@ -60,6 +60,7 @@ FROM base
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 COPY --from=recoll-builder /usr/local /usr/local
-COPY --from=rust-builder /app/target/release/windexer-serve  /usr/local/bin/windexer-serve
-COPY --from=rust-builder /app/target/release/windexer-update /usr/local/bin/windexer-update
+COPY --from=rust-builder /app/target/release/app-serve  /usr/local/bin/app-serve
+COPY --from=rust-builder /app/target/release/app-update /usr/local/bin/app-update
 
+CMD [ "/usr/local/bin/app-serve" ]
