@@ -1,7 +1,6 @@
 use crate::file_index::FileIndex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt::format;
 use crate::config::{ENV_PREFIX, read_env_config};
 
 #[derive(Debug, Deserialize, Serialize)]

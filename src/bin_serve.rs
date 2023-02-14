@@ -13,6 +13,7 @@ use crate::index_repo::IndexRepo;
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use serde::Deserialize;
+use anyhow::{Result};
 
 #[derive(Deserialize)]
 pub struct AppHttpConfig {
@@ -29,11 +30,11 @@ impl AppHttpConfig {
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<()> {
   dotenv().ok();
   env_logger::init();
 
-  let webserver_cfg: AppHttpConfig = read_env_config("HTTP");
+  let webserver_cfg: AppHttpConfig = read_env_config("HTTP")?;
   log::info!("staring http server on {}:{}", webserver_cfg.host, webserver_cfg.port);
 
   let app_config = web::Data::new(IndexRepo::default());
@@ -55,4 +56,5 @@ async fn main() -> std::io::Result<()> {
     .bind((webserver_cfg.host, webserver_cfg.port))?
     .run()
     .await
+    .map_err(anyhow::Error::msg)
 }
