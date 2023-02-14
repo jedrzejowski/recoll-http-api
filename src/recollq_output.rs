@@ -1,4 +1,6 @@
 use anyhow::{anyhow, ensure, Result};
+use base64::Engine;
+use base64::engine::general_purpose::{STANDARD as std_base64};
 use serde::{Deserialize, Serialize};
 use crate::search_results::SearchResult;
 use crate::deserialize::{deserialize_number_from_string, deserialize_option_number_from_string};
@@ -65,7 +67,7 @@ fn parse_recollq_output_inner<S: AsRef<str>>(stdout: S) -> Result<SearchResult<R
         break;
       }
 
-      let prop_value = base64::decode(prop_value.unwrap())
+      let prop_value = std_base64.decode(prop_value.unwrap())
         .map_err(|err| {
           log::error!("error while parsing base64 command: {}", err);
           anyhow::Error::msg(err)

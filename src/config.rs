@@ -1,28 +1,11 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use crate::file_index::FileIndex;
+use serde::de::DeserializeOwned;
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct AppConfig {
-  pub indexes: HashMap<String, FileIndex>
+pub const ENV_PREFIX: &str = "WINDEX";
+
+pub fn get_prefixed_env<K: AsRef<str>>(name: K) -> Option<String> {
+  std::env::var(format!("{}_API_KEY", name.as_ref())).ok()
 }
 
-impl AppConfig {
-  pub fn get_index<S: AsRef<str>>(&self, name: S) -> Option<&FileIndex> {
-    self.indexes.get(name.as_ref())
-  }
-}
-
-impl Default for AppConfig {
-  fn default() -> Self {
-    let config_file_path = std::env::var("WINDEX_CONF")
-      .unwrap_or_else(|_err| "config.yml".to_string());
-
-    let config_file = std::fs::read_to_string(config_file_path);
-    let config_file = &config_file.unwrap();
-
-    let config = serde_yaml::from_str(&config_file);
-
-    config.unwrap()
-  }
+pub fn read_env_config<T: DeserializeOwned>(name: &str) -> T {
+  return envy::prefixed(format!("{}_{}", ENV_PREFIX, name)).from_env::<T>().unwrap();
 }

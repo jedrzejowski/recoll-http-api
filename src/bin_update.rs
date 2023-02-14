@@ -1,15 +1,16 @@
-mod config;
+mod index_repo;
 mod deserialize;
 mod recollq_output;
 mod search_results;
 mod file_index;
 
 use futures::{io::BufReader, prelude::*};
-use crate::config::AppConfig;
+use anyhow::Result;
+use crate::index_repo::IndexRepo;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-  let config = AppConfig::default();
+async fn main() -> Result<()> {
+  let config = IndexRepo::default();
   
   for (name, file_index) in &config.indexes {
     let mut child = file_index.spawn_update_process().await?;

@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize};
-use crate::config::{AppConfig};
+use crate::index_repo::{IndexRepo};
 use crate::file_index::FileIndexQueryOptions;
 
 #[derive(Debug, Deserialize)]
@@ -9,9 +9,9 @@ pub struct MyPath {
 }
 
 pub async fn handler(
-  path: web::Path<MyPath>,
-  payload: web::Query<FileIndexQueryOptions>,
-  app_config: web::Data<AppConfig>,
+    path: web::Path<MyPath>,
+    payload: web::Query<FileIndexQueryOptions>,
+    app_config: web::Data<IndexRepo>,
 ) -> actix_web::Result<HttpResponse> {
   let MyPath { index_name } = path.into_inner();
 
