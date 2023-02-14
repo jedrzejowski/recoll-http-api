@@ -8,7 +8,7 @@ use actix_web::{
 use futures::future::LocalBoxFuture;
 use futures::FutureExt;
 use std::future::{ready, Ready};
-use crate::config::{ENV_PREFIX, get_prefixed_env};
+use crate::config::get_prefixed_env;
 
 const API_KEY_HEADER_NAME: HeaderName = HeaderName::from_static("x-api-key");
 
