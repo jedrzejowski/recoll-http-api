@@ -63,4 +63,4 @@ COPY --from=recoll-builder /usr/local /usr/local
 COPY --from=rust-builder /app/target/release/findex-serve  /usr/local/bin/findex-serve
 COPY --from=rust-builder /app/target/release/findex-update /usr/local/bin/findex-update
 
-CMD [ "/usr/local/bin/app-serve" ]
+CMD [ "/usr/local/bin/findex-serve" ]

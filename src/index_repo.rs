@@ -2,7 +2,7 @@ use crate::file_index::FileIndex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::format;
-use crate::config::ENV_PREFIX;
+use crate::config::{ENV_PREFIX, read_env_config};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct IndexRepo {
@@ -22,9 +22,9 @@ impl Default for IndexRepo {
     };
 
     for i in 0.. {
-      let prefix = format!("{}_INDEX_{}_", ENV_PREFIX, i);
+      let prefix = format!("INDEX_{}_", i);
 
-      match envy::prefixed(prefix).from_env::<FileIndex>() {
+      match read_env_config::<FileIndex>(&prefix) {
         Ok(index) => {
           log::info!("resolved index with name '{}'", &index.name);
           repo.indexes.insert(index.name.clone(), index);
