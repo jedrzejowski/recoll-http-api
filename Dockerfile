@@ -60,7 +60,7 @@ FROM base
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 COPY --from=recoll-builder /usr/local /usr/local
-COPY --from=rust-builder /app/target/release/app-serve  /usr/local/bin/app-serve
-COPY --from=rust-builder /app/target/release/app-update /usr/local/bin/app-update
+COPY --from=rust-builder /app/target/release/findex-serve  /usr/local/bin/findex-serve
+COPY --from=rust-builder /app/target/release/findex-update /usr/local/bin/findex-update
 
 CMD [ "/usr/local/bin/app-serve" ]

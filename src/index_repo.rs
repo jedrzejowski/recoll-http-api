@@ -1,6 +1,8 @@
 use crate::file_index::FileIndex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::format;
+use crate::config::ENV_PREFIX;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct IndexRepo {
@@ -15,14 +17,25 @@ impl IndexRepo {
 
 impl Default for IndexRepo {
   fn default() -> Self {
-    let config_file_path = std::env::var("WINDEX_REPO")
-      .unwrap_or("indexes.yml".to_string());
+    let mut repo = IndexRepo {
+      indexes: HashMap::new()
+    };
 
-    let config_file = std::fs::read_to_string(config_file_path);
-    let config_file = &config_file.unwrap();
+    for i in 0.. {
+      let prefix = format!("{}_INDEX_{}_", ENV_PREFIX, i);
 
-    let config = serde_yaml::from_str(&config_file);
+      match envy::prefixed(prefix).from_env::<FileIndex>() {
+        Ok(index) => {
+          log::info!("resolved index with name '{}'", &index.name);
+          repo.indexes.insert(index.name.clone(), index);
+        }
+        Err(_) => {
+          log::info!("stoping resolving indexes");
+          break;
+        }
+      }
+    }
 
-    config.unwrap()
+    repo
   }
 }

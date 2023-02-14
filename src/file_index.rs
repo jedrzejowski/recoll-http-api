@@ -7,6 +7,7 @@ use crate::search_results::SearchResult;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct FileIndex {
+  pub name: String,
   pub recoll_config_dir: String,
   pub recoll_url_prefix: String,
   pub url_prefix: String,

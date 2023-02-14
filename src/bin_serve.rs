@@ -11,6 +11,7 @@ use crate::api_key_guard::ApiKeyGuard;
 use crate::config::read_env_config;
 use crate::index_repo::IndexRepo;
 use actix_web::{web, App, HttpServer};
+use dotenv::dotenv;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -29,6 +30,7 @@ impl AppHttpConfig {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+  dotenv().ok();
   env_logger::init();
 
   let webserver_cfg: AppHttpConfig = read_env_config("HTTP");
