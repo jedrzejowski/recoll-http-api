@@ -7,6 +7,7 @@ RUN apt-get update && \
         libxapian30 \
         libxslt1.1 \
         zlib1g \
+        firejail \
         python3-waitress \
         python3-mutagen \
         python3-lxml \
@@ -59,6 +60,11 @@ RUN cargo build --release
 FROM base
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
+
+ENV RECOLLINDEX_BIN=/usr/local/bin/recollindex
+ENV RECOLLQ_BIN=/usr/local/bin/recollq
+ENV FIREJAIL_BIN=/usr/bin/firejail
+
 COPY --from=recoll-builder /usr/local /usr/local
 COPY --from=rust-builder /app/target/release/findex-serve  /usr/local/bin/findex-serve
 COPY --from=rust-builder /app/target/release/findex-update /usr/local/bin/findex-update

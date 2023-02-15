@@ -6,6 +6,7 @@ mod file_index;
 mod index_repo;
 mod recollq_output;
 mod search_results;
+mod command;
 
 use crate::api_key_guard::ApiKeyGuard;
 use crate::config::read_env_config;

@@ -4,6 +4,7 @@ mod recollq_output;
 mod search_results;
 mod file_index;
 mod config;
+mod command;
 
 use futures::{io::BufReader, prelude::*};
 use anyhow::Result;

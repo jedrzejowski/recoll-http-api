@@ -2,6 +2,8 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use url::Url;
+use crate::command::make_command;
+use crate::config::BinPaths;
 use crate::recollq_output::parse_recollq_output;
 use crate::search_results::SearchResult;
 
@@ -11,10 +13,6 @@ pub struct FileIndex {
   pub recoll_config_dir: String,
   pub recoll_url_prefix: String,
   pub url_prefix: String,
-  #[serde(default = "recollq_bin_default")]
-  pub recollq_bin: String,
-  #[serde(default = "recollindex_bin_default")]
-  pub recollindex_bin: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -46,7 +44,7 @@ impl FileIndex {
     &self,
     options: FileIndexQueryOptions
   ) -> Result<SearchResult<FileIndexResultRow>> {
-    let mut cmd = async_process::Command::new(self.recollq_bin.clone());
+    let mut cmd = make_command(BinPaths::recollq());
 
     cmd.arg("-c").arg(&self.recoll_config_dir);
     cmd.arg("-n").arg(format!("{}-{}", options.offset, options.limit));
@@ -108,7 +106,7 @@ impl FileIndex {
   }
 
   pub async fn spawn_update_process(&self) -> Result<async_process::Child> {
-    let mut cmd = async_process::Command::new(&self.recollindex_bin);
+    let mut cmd = make_command(BinPaths::recollindex());
 
     cmd.arg("-c").arg(&self.recoll_config_dir);
 
@@ -117,14 +115,4 @@ impl FileIndex {
 
     Ok(cmd.spawn()?)
   }
-}
-
-fn recollq_bin_default() -> String {
-  return std::env::var("RECOLLQ_BIN")
-    .unwrap_or("/usr/bin/recollq".to_string());
-}
-
-fn recollindex_bin_default() -> String {
-  return std::env::var("RECOLLINDEX_BIN")
-    .unwrap_or("/usr/bin/recollindex".to_string());
 }
