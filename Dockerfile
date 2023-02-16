@@ -61,9 +61,9 @@ FROM base
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 
-ENV RECOLLINDEX_BIN=/usr/local/bin/recollindex
-ENV RECOLLQ_BIN=/usr/local/bin/recollq
-ENV FIREJAIL_BIN=/usr/bin/firejail
+ENV FINDEX_BIN_RECOLLINDEX=/usr/local/bin/recollindex
+ENV FINDEX_BIN_RECOLLQ=/usr/local/bin/recollq
+ENV FINDEX_BIN_FIREJAIL=/usr/bin/firejail
 
 COPY --from=recoll-builder /usr/local /usr/local
 COPY --from=rust-builder /app/target/release/findex-serve  /usr/local/bin/findex-serve

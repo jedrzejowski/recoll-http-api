@@ -1,4 +1,4 @@
-use crate::config::{read_env_config, ENV_PREFIX};
+use crate::config::{read_env_config};
 use crate::file_index::FileIndex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
