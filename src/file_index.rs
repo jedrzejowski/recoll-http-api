@@ -1,11 +1,11 @@
-use anyhow::{anyhow, Result};
-use chrono::{DateTime, TimeZone, Utc};
-use serde::{Deserialize, Serialize};
-use url::Url;
 use crate::command::make_command;
 use crate::config::BinPaths;
 use crate::recollq_output::parse_recollq_output;
 use crate::search_results::SearchResult;
+use anyhow::{anyhow, Result};
+use chrono::{DateTime, TimeZone, Utc};
+use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct FileIndex {
@@ -38,11 +38,10 @@ pub struct FileIndexResultRow {
   pub size_in_bytes: Option<u64>,
 }
 
-
 impl FileIndex {
   pub async fn query(
     &self,
-    options: FileIndexQueryOptions
+    options: FileIndexQueryOptions,
   ) -> Result<SearchResult<FileIndexResultRow>> {
     let mut cmd = make_command(BinPaths::recollq());
 
@@ -52,13 +51,13 @@ impl FileIndex {
 
     cmd.arg(options.filter);
 
-    let output = cmd.output().await
-      .map_err(|err| {
-        log::error!("error while executing command: {}", err);
-        anyhow::anyhow!("{}", err)
-      })?;
+    let output = cmd.output().await.map_err(|err| {
+      log::error!("error while executing command: {}", err);
+      anyhow::anyhow!("{}", err)
+    })?;
 
     if !output.status.success() {
+      log::error!("non zero exit: {:?}", output);
       return Err(anyhow::anyhow!("non zero exit"));
     }
 
@@ -70,11 +69,14 @@ impl FileIndex {
     for recoll_line in results.rows {
       let base_url = if recoll_line.url.starts_with(&self.recoll_url_prefix) {
         &recoll_line.url[self.recoll_url_prefix.len()..]
-      } else { recoll_line.url.as_str() };
+      } else {
+        recoll_line.url.as_str()
+      };
 
       let filename = {
         let base_url = Url::parse(&recoll_line.url)?;
-        base_url.path_segments()
+        base_url
+          .path_segments()
           .ok_or(anyhow!("ill formatted url"))?
           .last()
           .ok_or(anyhow!("ill formatted url"))?
@@ -85,7 +87,9 @@ impl FileIndex {
 
       let smart_path = if let Some(ipath) = recoll_line.ipath {
         ipath.split('|').last().map(|s| format!("{} | {}", base_url, s))
-      } else { None };
+      } else {
+        None
+      };
 
       rows.push(FileIndexResultRow {
         caption: recoll_line.caption,

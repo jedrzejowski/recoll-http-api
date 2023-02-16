@@ -1,3 +1,4 @@
+use crate::config::get_prefixed_env;
 use actix_web::dev::forward_ready;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{
@@ -8,7 +9,6 @@ use actix_web::{
 use futures::future::LocalBoxFuture;
 use futures::FutureExt;
 use std::future::{ready, Ready};
-use crate::config::get_prefixed_env;
 
 const API_KEY_HEADER_NAME: HeaderName = HeaderName::from_static("x-api-key");
 
@@ -46,10 +46,7 @@ where
   fn new_transform(&self, service: S) -> Self::Future {
     ready(Ok(ApiKeyMiddleware {
       service,
-      api_key_value: self
-        .api_key
-        .clone()
-        .map(|value| HeaderValue::from_str(&value).unwrap()),
+      api_key_value: self.api_key.clone().map(|value| HeaderValue::from_str(&value).unwrap()),
     }))
   }
 }
@@ -72,26 +69,16 @@ where
   forward_ready!(service);
 
   fn call(&self, req: ServiceRequest) -> Self::Future {
-    return match (
-      &self.api_key_value,
-      req
-        .headers()
-        .get(API_KEY_HEADER_NAME),
-    ) {
+    return match (&self.api_key_value, req.headers().get(API_KEY_HEADER_NAME)) {
       (Some(api_key_value), Some(header_value)) => {
         if api_key_value == header_value {
-          self
-            .service
-            .call(req)
-            .boxed_local()
+          self.service.call(req).boxed_local()
         } else {
           ready(Err(ErrorUnauthorized("unauthorized"))).boxed_local()
         }
       }
-      _ => self
-        .service
-        .call(req)
-        .boxed_local(),
+      (Some(_), None) => ready(Err(ErrorUnauthorized("unauthorized"))).boxed_local(),
+      (None, _) => self.service.call(req).boxed_local(),
     };
   }
 }

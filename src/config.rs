@@ -1,6 +1,6 @@
+use anyhow::Result;
 use once_cell::sync::OnceCell;
 use serde::{de::DeserializeOwned, Deserialize};
-use anyhow::Result;
 
 pub const ENV_PREFIX: &str = "FINDEX";
 
@@ -9,7 +9,8 @@ pub fn get_prefixed_env<K: AsRef<str>>(name: K) -> Option<String> {
 }
 
 pub fn read_env_config<T: DeserializeOwned>(name: &str) -> Result<T> {
-  return envy::prefixed(format!("{}_{}", ENV_PREFIX, name)).from_env::<T>()
+  return envy::prefixed(format!("{}_{}_", ENV_PREFIX, name))
+    .from_env::<T>()
     .map_err(anyhow::Error::msg);
 }
 
@@ -43,16 +44,13 @@ impl BinPaths {
 }
 
 fn firejail_bin_default() -> String {
-  return std::env::var("FIREJAIL_BIN")
-    .unwrap_or("/usr/bin/firejail".to_string());
+  return "/usr/bin/firejail".to_string();
 }
 
 fn recollq_bin_default() -> String {
-  return std::env::var("RECOLLQ_BIN")
-    .unwrap_or("/usr/bin/recollq".to_string());
+  return "/usr/bin/recollq".to_string();
 }
 
 fn recollindex_bin_default() -> String {
-  return std::env::var("RECOLLINDEX_BIN")
-    .unwrap_or("/usr/bin/recollindex".to_string());
+  return "/usr/bin/recollindex".to_string();
 }

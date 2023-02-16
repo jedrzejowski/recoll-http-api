@@ -1,7 +1,7 @@
+use crate::config::{read_env_config, ENV_PREFIX};
 use crate::file_index::FileIndex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::config::{ENV_PREFIX, read_env_config};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct IndexRepo {
@@ -17,11 +17,11 @@ impl IndexRepo {
 impl Default for IndexRepo {
   fn default() -> Self {
     let mut repo = IndexRepo {
-      indexes: HashMap::new()
+      indexes: HashMap::new(),
     };
 
     for i in 0.. {
-      let prefix = format!("INDEX_{}_", i);
+      let prefix = format!("INDEX_{}", i);
 
       match read_env_config::<FileIndex>(&prefix) {
         Ok(index) => {
