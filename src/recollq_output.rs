@@ -25,7 +25,7 @@ pub struct RecollLine {
   #[serde(deserialize_with = "deserialize_number_from_string")]
   pub pcbytes: u64,
   pub mtype: String,
-  pub origcharset: String,
+  pub origcharset: Option<String>,
   pub rcludi: String,
   pub relevancyrating: String,
   pub sig: String,
