@@ -2,6 +2,7 @@ mod api_key_guard;
 mod command;
 mod config;
 mod deserialize;
+mod endpoint_list;
 mod endpoint_query;
 mod file_index;
 mod index_repo;
@@ -40,22 +41,20 @@ async fn main() -> Result<()> {
   env_logger::init();
 
   let webserver_cfg: AppHttpConfig = read_env_config("HTTP")?;
-  log::info!(
-    "staring http server on {}:{}",
-    webserver_cfg.host,
-    webserver_cfg.port
-  );
+  log::info!("staring http server on {}:{}", webserver_cfg.host, webserver_cfg.port);
 
-  let app_config = web::Data::new(IndexRepo::default());
+  let index_repo = web::Data::new(IndexRepo::default());
   let api_guard = ApiKeyGuard::default();
 
   HttpServer::new(move || {
-    let mut app = App::new().app_data(app_config.clone());
+    let mut app = App::new().app_data(index_repo.clone());
 
-    app = app.service(web::scope("/indexes").wrap(api_guard.clone()).route(
-      "/{index_name}/query",
-      web::get().to(endpoint_query::handler),
-    ));
+    app = app.service(
+      web::scope("/indexes")
+        .wrap(api_guard.clone())
+        .route("/list", web::get().to(endpoint_list::handler))
+        .route("/{index_name}/query", web::get().to(endpoint_query::handler)),
+    );
 
     app
   })

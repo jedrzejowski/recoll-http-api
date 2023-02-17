@@ -11,12 +11,12 @@ pub struct MyPath {
 pub async fn handler(
   path: web::Path<MyPath>,
   payload: web::Query<FileIndexQueryOptions>,
-  app_config: web::Data<IndexRepo>,
+  index_repo: web::Data<IndexRepo>,
 ) -> actix_web::Result<HttpResponse> {
   let MyPath { index_name } = path.into_inner();
 
   let file_index =
-    app_config.get_index(index_name).ok_or(actix_web::error::ErrorNotFound("not found"))?;
+    index_repo.get_index(index_name).ok_or(actix_web::error::ErrorNotFound("not found"))?;
 
   let results = file_index
     .query(payload.into_inner())
