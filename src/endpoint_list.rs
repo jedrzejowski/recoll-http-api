@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize)]
 pub struct Index {
   pub name: String,
+  #[serde(rename = "displayName")]
   pub display_name: String,
 }
 
