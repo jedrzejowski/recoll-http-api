@@ -74,15 +74,7 @@ impl FileIndex {
         recoll_line.url.as_str()
       };
 
-      let filename = {
-        let base_url = Url::parse(&recoll_line.url)?;
-        base_url
-          .path_segments()
-          .ok_or(anyhow!("ill formatted url"))?
-          .last()
-          .ok_or(anyhow!("ill formatted url"))?
-          .to_string()
-      };
+      let filename = recoll_line.url.split("/").last().ok_or(anyhow!("ill formatted url"))?;
 
       let modification_time = Utc.timestamp_opt(recoll_line.mtime, 0).single();
 
@@ -94,7 +86,7 @@ impl FileIndex {
 
       rows.push(FileIndexResultRow {
         caption: recoll_line.caption,
-        filename,
+        filename: filename.to_string(),
         url: format!("{}{}", self.url_prefix, base_url),
         r#abstract: recoll_line.r#abstract,
         modification_time,

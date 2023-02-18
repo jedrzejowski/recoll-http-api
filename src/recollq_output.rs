@@ -44,13 +44,29 @@ fn parse_recollq_output_inner<S: AsRef<str>>(stdout: S) -> Result<SearchResult<R
   let mut line_iterator = stdout.as_ref().split("\n");
   line_iterator.next();
 
-  let line_with_count = line_iterator.next();
-  ensure!(line_with_count.is_some(), "line_with_count exists");
-  let total_count = line_with_count.unwrap().split(" ").next();
-  ensure!(total_count.is_some(), "line_with_count hase first word");
-  let total_count = total_count.unwrap().parse();
-  ensure!(total_count.is_ok(), "first word line_with_count is number");
-  let total_count = total_count.unwrap();
+  let total_count = {
+    let line_with_count = line_iterator.next();
+    ensure!(line_with_count.is_some(), "line_with_count does not exists");
+    let line_with_count = line_with_count.unwrap();
+
+    let total_count = if line_with_count.starts_with("Printing") {
+      let mut split = line_with_count.split(" ");
+      split.next();
+      split.next();
+      split.next();
+      let total_count = split.next();
+      ensure!(total_count.is_some(), "line_with_count hase first word");
+      total_count.unwrap()
+    } else {
+      let total_count = line_with_count.split(" ").next();
+      ensure!(total_count.is_some(), "line_with_count hase first word");
+      total_count.unwrap()
+    };
+
+    let total_count = total_count.parse();
+    ensure!(total_count.is_ok(), "first word line_with_count not is number");
+    total_count.unwrap()
+  };
 
   for line in line_iterator {
     if line.len() == 0 {
@@ -68,17 +84,13 @@ fn parse_recollq_output_inner<S: AsRef<str>>(stdout: S) -> Result<SearchResult<R
         break;
       }
 
-      let prop_value = std_base64.decode(prop_value.unwrap())
-        .map_err(|err| {
-          log::error!("error while parsing base64 command: {}", err);
-          anyhow::Error::msg(err)
-        })?;
+      let prop_value = std_base64.decode(prop_value.unwrap()).map_err(|err| {
+        log::error!("error while parsing base64 command: {}", err);
+        anyhow::Error::msg(err)
+      })?;
       let prop_value = String::from_utf8_lossy(&prop_value);
 
-      map.insert(
-        prop_name.unwrap().to_string(),
-        serde_json::Value::String(prop_value.to_string()),
-      );
+      map.insert(prop_name.unwrap().to_string(), serde_json::Value::String(prop_value.to_string()));
     }
 
     let recoll_line = serde_json::from_value(serde_json::Value::Object(map))?;
