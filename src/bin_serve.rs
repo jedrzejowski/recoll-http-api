@@ -2,6 +2,7 @@ mod api_key_guard;
 mod command;
 mod config;
 mod deserialize;
+mod endpoint_about;
 mod endpoint_list;
 mod endpoint_query;
 mod file_index;
@@ -48,6 +49,8 @@ async fn main() -> Result<()> {
 
   HttpServer::new(move || {
     let mut app = App::new().app_data(index_repo.clone());
+
+    app = app.route("/about", web::get().to(endpoint_about::handler));
 
     app = app.service(
       web::scope("/indexes")
