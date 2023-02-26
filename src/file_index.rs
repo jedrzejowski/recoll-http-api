@@ -32,7 +32,7 @@ pub struct FileIndexResultRow {
   pub smart_path: Option<String>,
   #[serde(rename = "mimeType")]
   pub mime_type: String,
-  pub r#abstract: String,
+  pub r#abstract: Option<String>,
   #[serde(rename = "modificationTime")]
   pub modification_time: Option<DateTime<Utc>>,
   #[serde(rename = "sizeInBytes")]
@@ -84,11 +84,16 @@ impl FileIndex {
         None
       };
 
+      let r#abstract = match recoll_line.r#abstract.as_str() {
+        "" | "\n" => None,
+        text => Some(text.to_string()),
+      };
+
       rows.push(FileIndexResultRow {
         caption: recoll_line.caption,
         filename: filename.to_string(),
         url: format!("{}{}", self.url_prefix, base_url),
-        r#abstract: recoll_line.r#abstract,
+        r#abstract,
         modification_time,
         size_in_bytes: Some(recoll_line.fbytes),
         mime_type: recoll_line.mtype,
